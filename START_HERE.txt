@@ -1,0 +1,9 @@
+SIRF 3 KAAM:
+1. Is zip ko unzip karein.
+2. GitHub par naya KHALI repository banayen (naam: surahyaseen), phir saari files (hidden ".github" folder samet)
+   upload karein. Sab se aasan: PUSH_TO_GITHUB.bat mein YOUR_USERNAME badal kar double-click.
+3. GitHub -> Actions tab -> "Build Android APK" khud chalegi (8-15 min).
+   Khatam hone par: Releases -> SurahYaseen.apk download -> phone par install.
+   (Ya Actions -> run -> Artifacts -> SurahYaseen-APK)
+
+Agar Actions mein red X aaye: us red step par click karke error ka text mujhe bhej dein.

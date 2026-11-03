@@ -1,0 +1,68 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.35.x"
+          cache: true
+
+      - name: Generate Android project files
+        run: flutter create . --platforms=android --org com.mohsin --project-name surahyaseen
+
+      - name: Patch Android config (permissions, audio service, notifications)
+        run: python3 tools/patch_android.py
+
+      - name: Remove default template test
+        run: rm -f test/widget_test.dart
+
+      - name: Install packages
+        run: flutter pub get
+
+      - name: Generate launcher icon
+        continue-on-error: true
+        run: dart run flutter_launcher_icons
+
+      - name: Run data tests (checks all 83 ayat)
+        run: flutter test
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk SurahYaseen.apk
+
+      - name: Save APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SurahYaseen-APK
+          path: SurahYaseen.apk
+
+      - name: Publish APK in GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Surah Yaseen build ${{ github.run_number }}
+          body: Download SurahYaseen.apk below and install it on your Android phone.
+          files: SurahYaseen.apk
